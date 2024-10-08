@@ -31,7 +31,7 @@ Public Class MainFrm
             Try
                 Using myStreamReader As New StreamReader(openFileDialog1.FileName)
 
-                    ''Averigua los códigos de registro de cada línea del archivo N43 y los valida
+                    ''Valida los códigos de registro de cada línea del archivo N43
                     While Not myStreamReader.EndOfStream
 
                         Dim regCode = myStreamReader.ReadLine
@@ -54,7 +54,7 @@ Public Class MainFrm
                     myStreamReader.DiscardBufferedData()
                     myStreamReader.BaseStream.Seek(0, SeekOrigin.Begin)
 
-                    ''Itera de nuevo el archivo
+                    ''Archivo validado: lee los registros.
                     Dim index As Integer
                     While Not myStreamReader.EndOfStream
 
@@ -296,7 +296,6 @@ Public Class MainFrm
         End If
 
     End Sub
-
 
     Private Sub BtnClose_Click(sender As Object, e As EventArgs) Handles btnClose.Click
 

@@ -1,6 +1,6 @@
 ﻿Public Module ModuleN43
 
-    'La longitud de todas las líneas del archvio debe ser de 80 caracteres
+    'La longitud de todas las líneas del archivo debe ser de 80 caracteres
     Public Const LONGITUD_LINEA As Integer = 80
 
     'Existirán solo 5 tipos de registro
