@@ -1,7 +1,9 @@
 ﻿Public Module ModuleN43
 
+    'La longitud de todas las líneas del archvio debe ser de 80 caracteres
     Public Const LONGITUD_LINEA As Integer = 80
 
+    'Existirán solo 5 tipos de registro
     Public Const COD_REGISTRO_CABECERA_CUENTA As String = "11"
     Public Const COD_REGISTRO_MOVIMIENTO As String = "22"
     Public Const COD_REGISTRO_CONCEPTO_COMPLEMENTARIO As String = "23"
@@ -9,7 +11,7 @@
     Public Const COD_REGISTRO_FINAL_CUENTA As String = "33"
     Public Const COD_REGISTRO_FIN_FICHERO As String = "88"
 
-    Public RegistrosValidos As New List(Of String) From {
+    Public ReadOnly RegistrosValidos As New List(Of String) From {
         {COD_REGISTRO_CABECERA_CUENTA},
         {COD_REGISTRO_MOVIMIENTO},
         {COD_REGISTRO_CONCEPTO_COMPLEMENTARIO},
@@ -17,7 +19,7 @@
         {COD_REGISTRO_FINAL_CUENTA},
         {COD_REGISTRO_FIN_FICHERO}}
 
-    Public Conceptos As New Dictionary(Of String, String) From {
+    Public ReadOnly Conceptos As New Dictionary(Of String, String) From {
         {"01", "TALONES - REINTEGROS"},
         {"02", "ABONARÉS - ENTREGAS - INGRESOS"},
         {"03", "DOMICILIADOS - RECIBOS - LETRAS - PAGOS POR SU CTA."},
@@ -38,7 +40,7 @@
         {"98", "ANULACIONES - CORRECCIONES ASIENTO"},
         {"99", "VARIOS"}}
 
-    Public Divisas As New Dictionary(Of String, String) From {
+    Public ReadOnly Divisas As New Dictionary(Of String, String) From {
         {"36", "Dólar australiano"},
         {"124", "Dólar canadiense"},
         {"208", "Corona Danesa"},
@@ -52,7 +54,50 @@
         {"978", "Euro"}}
 
     ''' <summary>
-    ''' Registro de cabecera de cuenta
+    ''' 
+    ''' REGISTRO DE CABECERA DE CUENTA
+    ''' 
+    ''' - Código de registro: dos posiciones 
+    '''   11
+    '''   
+    ''' - Clave de Entidad: cuatro posiciones.
+    '''   Número de clave de la Entidad de Crédito que confecciona el fichero. Si este no tiene cuatro cifras, se completará con ceros a la izquierda.
+    '''   
+    ''' - Clave de Oficina: cuatro posiciones
+    '''   Número de clave de la Oficina a que corresponde la cuenta. Si no tiene cuatro cifras se completará con ceros a la izquierda
+    '''   
+    ''' - Número de cuenta: diez posiciones
+    '''   Número de cuenta dentro de la Oficina. En estos diez dígitos se incluyen todos los controles internos que utilice cada Entidad poseedora de la cuenta. 
+    '''   Si no tiene diez dígitos, se rellena de ceros a la izquierda.
+    '''   
+    ''' - Fecha inicial: seis posiciones
+    '''   Fecha primera del período al que corresponde la información. Formato: AAMMDD.
+    '''   
+    ''' - Fecha Final: seis posiciones
+    '''   Fecha del Final del período al que corresponde la información. Formato: AAMMDD.
+    '''   
+    ''' - Clave Debe o Haber: una posición.
+    '''   Signo del campo de importe de saldo inicial.
+    '''   1.- Deudor
+    '''   2.- Acreedor
+    '''   
+    ''' - Importe de Saldo inicial: catorce posiciones.
+    '''   Saldo inicial de la cuenta.
+    '''   El saldo de fin del día inmediatamente anterior a la menor fecha del período, que deberá coincidir con el Saldo final de la anterior información. 
+    '''   Importe con 2 decimales, sin reflejar la coma. Se rellena con ceros a la izquierda.
+    '''   
+    ''' - Clave de divisa: tres posiciones
+    '''   Clave numérica de la divisa en que opera la cuenta, según tabla de divisas y claves código ISO (ver anexo 2).
+    '''   
+    ''' - Modalidad de información: una posición
+    '''   Código de la modalidad de información: tomará valor 1, 2 ó 3.
+    '''   
+    ''' - Nombre abreviado: 26 posiciones
+    '''   Nombre abreviado del cliente propietario de la cuenta.
+    '''   
+    ''' - Libre: tres posiciones
+    '''   Rellenas a espacios
+    '''   
     ''' </summary>
     Public Class CabeceraCuentaN43
 
@@ -224,7 +269,52 @@
 
 
     ''' <summary>
-    ''' Registro principal de movimientos (obligatorio)
+    ''' 
+    ''' REGISTRO PRINCIPAL DE MOVIMIENTOS (obligatorio)
+    ''' 
+    ''' - Código de Registro: dos posiciones.
+    '''   22
+    '''   
+    ''' - Libre: cuatro posiciones
+    '''   Relleno a espacios
+    '''   
+    ''' - Clave de Oficina Origen: cuatro posiciones
+    '''   Número de clave de la Oficina en la que se formaliza el apunte de movimiento. Si no tiene cuatro cifras se completará con ceros a la izquierda.
+    '''   Libre en la modalidad primera.
+    '''   
+    ''' - Fecha de operación: seis posiciones
+    '''   Fecha de asentamiento en la cuenta. Formato: AAMMDD.
+    '''   
+    ''' - Fecha de Valor: seis posiciones
+    '''   Fecha de valor contable a efectos de cálculo de intereses. Formato: AAMMDD.
+    '''   
+    ''' - Concepto común: dos posiciones
+    '''   Clave de concepto de la Operación ajustada al baremo común interbancario señalado en el anexo nº 2.
+    '''   
+    ''' - Concepto propio: tres posiciones
+    '''   Clave de operación utilizada por cada Entidad con sus clientes. 
+    '''   En los casos que se acuerde expresa y bilateralmente podrá ser desarrollado, en los campos destinados al efecto dentro de 
+    '''   los registros "Complementarios de concepto" (opcionales), al objeto de sustituir la información impresa remitida actualmente.
+    '''   
+    ''' - Clave Debe o Haber: una posición.
+    '''   Signo del campo del importe
+    '''   1.- Apuntes Debe
+    '''   2.- Apuntes Haber
+    '''   
+    ''' - Importe: catorce posiciones
+    '''   Importe del apunte con dos decimales, sin reflejar la coma. Rellenar con ceros a la izquierda, si es necesario.
+    '''   
+    ''' - Nº de documento: diez posiciones
+    '''   Siempre en caracteres numéricos, debiéndose completar con ceros a la izquierda.
+    '''   
+    ''' - Referencia 1: doce posiciones
+    '''   En caracteres numéricos, exclusivamente, debiéndose completar con ceros a la izquierda. Once posiciones para la referencia propiamente dicha y 
+    '''   una posición para el "Dígito de control", calculado en la forma normalizada en el anexo n.º 3. Libre en la modalidad primera y segunda.
+    '''   
+    '''  - Referencia 2: dieciséis posiciones
+    '''   Podrá contener caracteres numéricos o alfanuméricos, sin verificación de estos datos en la captura (ver anexo nº 3).
+    '''   Libre en la modalidad primera y segunda.
+    '''   
     ''' </summary>
     Public Class MovimientoN43
 
@@ -393,7 +483,19 @@
 
 
     ''' <summary>
-    ''' Registros complementarios de concepto. Primero a quinto opcionales
+    ''' 
+    ''' REGISTROS COMPLEMENTARIOS DE CONCEPTO. Primero a quinto opcionales
+    ''' 
+    ''' - Código de Registro: dos posiciones
+    '''   23
+    '''   
+    ''' - Código Dato: dos posiciones
+    '''   Número de secuencia: 01, 02, 03, 04, 05
+    '''   
+    ''' - Concepto: treinta y ocho posiciones
+    '''   Dos campos complementarios de concepto
+    '''   Por cada código de dato se recogen dos campos complementarios de concepto, de 38 posiciones cada uno de ellos.
+    '''   
     ''' </summary>
     Public Class ConceptoComplementarioN43
 
@@ -449,22 +551,28 @@
 
 
     ''' <summary>
-    ''' Registro complementario de información de equivalencia de importe del apunte (Opcional)
     ''' 
-    ''' Código de registro: dos posiciones.
-    ''' - 24
-    ''' Código de dato: dos posiciones.
-    ''' - 01
-    ''' Clave de divisa origen del movimiento: tres posiciones.
-    ''' - Según tabla de divisas y claves código ISO (ver anexo 2).
-    ''' Importe: catorce posiciones
-    ''' - Importe del apunte en la clave de divisa de origen, relleno con ceros a la izquierda, si es necesario.
-    ''' - 12 posiciones para enteros y 2 para decimales, sin reflejar la coma.
-    ''' Libre: cincuenta y nueve posiciones
-    ''' - Relleno a espacios
+    ''' REGISTRO COMPLEMENTARIO DE INFORMACION DE EQUIVALENCIA DE IMPORTE DEL APUNTE (Opcional)
     ''' 
+    ''' - Código de registro: dos posiciones.
+    '''   24
+    '''   
+    ''' - Código de dato: dos posiciones.
+    '''   01
+    '''   
+    ''' - Clave de divisa origen del movimiento: tres posiciones.
+    '''   Según tabla de divisas y claves código ISO (ver anexo 2).
+    '''   
+    ''' - Importe: catorce posiciones
+    '''   Importe del apunte en la clave de divisa de origen, relleno con ceros a la izquierda, si es necesario.
+    '''   12 posiciones para enteros y 2 para decimales, sin reflejar la coma.
+    '''   
+    ''' - Libre: cincuenta y nueve posiciones
+    '''   Relleno a espacios
+    '''   
     ''' Este registro, sin valor contable, únicamente figurará cuando la moneda origen de la operación no
     ''' sea coincidente con el tipo de moneda de la cuenta.
+    ''' 
     ''' </summary>
     Public Class EquivalenciaDivisaN43
 
@@ -532,7 +640,49 @@
 
 
     ''' <summary>
-    ''' Registro final de la cuenta
+    ''' 
+    ''' REGISTRO FINAL DE LA CUENTA
+    ''' 
+    ''' - Código de registro: dos posiciones
+    '''   33
+    '''   
+    ''' - Clave de Entidad: cuatro posiciones
+    '''   Número de clave de la Entidad de Crédito que confecciona el fichero. Si este no tiene cuatro cifras, se completará con ceros a la izquierda.
+    '''   
+    ''' - Clave de Oficina: cuatro posiciones
+    '''   Número de clave de la Oficina a que corresponde la cuenta. Si no tiene cuatro cifras se completará con ceros a la izquierda.
+    '''   
+    ''' - Número de Cuenta: diez posiciones
+    '''   Número de Cuenta dentro de la Oficina. En estos diez dígitos se incluyen todos los controles internos que utilice cada Entidad poseedora de la cuenta. 
+    '''   Si no tiene diez dígitos, se rellena de ceros a la izquierda.
+    '''   
+    ''' - Nº de Apuntes Debe: cinco posiciones
+    '''   Número de apuntes del Debe, completando con ceros a la izquierda.
+    '''   
+    ''' - Total Importes Debe: catorce posiciones
+    '''   Sumas de los importes de los movimientos del Debe, completados a ceros a la izquierda. Doce posiciones para enteros y dos para decimales, sin reflejar la coma.
+    '''   
+    ''' - Número de Apuntes Haber: cinco posiciones
+    '''   Número de apuntes del Haber, completado con ceros a la izquierda
+    '''   
+    ''' - Total Importes Haber: catorce posiciones
+    '''   Sumas de los importes de los movimientos del Haber, completados a ceros a la izquierda. Doce posiciones para enteros y dos para decimales, sin reflejar la coma.
+    '''   
+    ''' - Código de Saldo Final: una posición
+    '''   Signo de Saldo Final de la cuenta
+    '''   1.- Deudor
+    '''   2.- Acreedor
+    '''   
+    ''' - Importe del Saldo Final: catorce posiciones
+    '''   Saldo final de la cuenta una vez aplicados todos los movimientos. Relleno de ceros a la izquierda. 
+    '''   Doce posiciones para enteros y dos para decimales, sin reflejar la coma.
+    '''   
+    ''' - Clave de divisa: tres posiciones
+    '''   Clave numérica de la divisa en que opera la cuenta, según tabla de divisas y claves código ISO (ver anexo 2).
+    '''   
+    ''' - Libre: cuatro posiciones
+    '''   Rellenas a espacios.
+    '''   
     ''' </summary>
     Public Class FinalCuentaN43
 
@@ -674,7 +824,21 @@
 
 
     ''' <summary>
-    ''' Registro de fin de fichero
+    ''' 
+    ''' REGISTRO DE FIN DE FICHERO
+    ''' 
+    ''' - Código de registro: dos posiciones
+    '''   88
+    '''   
+    ''' - Nueves: dieciocho posiciones.
+    '''   Relleno a nueves
+    '''   
+    ''' - Nº de Registros: seis posiciones
+    '''   Número total de registros que contiene el fichero, excluyéndose a sí mismo.
+    '''   
+    ''' - Libre: cincuenta y cuatro posiciones
+    '''   Relleno de espacios
+    '''   
     ''' </summary>
     Public Class FinalArchivoN43
 
@@ -732,9 +896,16 @@
     End Class
 
 
-
+    ''' <summary>
+    ''' Calcula el dígito de control de una cuenta corriente
+    ''' </summary>
+    ''' <param name="ClaveEntidad"></param>
+    ''' <param name="ClaveOficina"></param>
+    ''' <param name="NumeroCuenta"></param>
+    ''' <returns></returns>
     Public Function CalculateDC(ByVal ClaveEntidad As String, ByVal ClaveOficina As String, ByVal NumeroCuenta As String) As String
 
+        'Sin uso en esta versión
         Dim dcOne(8) As Integer
         Dim dcTwo(10) As Integer
 

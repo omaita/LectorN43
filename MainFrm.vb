@@ -2,7 +2,7 @@
 Imports System.IO
 Imports System.Text
 
-Public Class mainFrm
+Public Class MainFrm
 
     Dim myRegCodes As New List(Of String)
     Dim myAccounts As New List(Of CabeceraCuentaN43)
@@ -121,7 +121,7 @@ Public Class mainFrm
 
     Private Sub PrintCabeceraCuenta(ByVal account As CabeceraCuentaN43)
 
-        ''Para crear un archivo UTF8 con BOM hay que añadir al principo del archivo.
+        ''Para crear un archivo UTF8 con BOM hay que añadir estos caracteres al principio del archivo.
         Dim saveToUTFBOM As String = Encoding.UTF8.GetString({&HEF, &HBB, &HBF})
 
         sbPrint.Append("TITULAR: " & account.NombreCliente & vbCrLf)
@@ -238,7 +238,7 @@ Public Class mainFrm
         myPrintDocument.DefaultPageSettings.Margins = margins
 
         ''Fuente por defecto para imprimir solo queda bien con fuentes monoespaciadas, no con proprocionales
-        printingFont = New Font("Courier New", 9)
+        printingFont = New Font("Courier New", 10)
 
         ''Agrega un controlador de eventos para el evento PrintPage del objeto myPrintDocument
         AddHandler myPrintDocument.PrintPage, AddressOf PrintDocument_PrintPage
@@ -257,17 +257,17 @@ Public Class mainFrm
         Dim charactersOnPage As Integer = 0
         Dim linesPerPage As Integer = 0
 
-        ' Sets the value of charactersOnPage to the number of characters 
-        ' of stringToPrint that will fit within the bounds of the page.
+        ' Establece el valor de charactersOnPage en la cantidad de caracteres
+        ' de stringToPrint que caben dentro de los límites de la página.
         e.Graphics.MeasureString(printingText, printingFont, e.MarginBounds.Size, StringFormat.GenericTypographic, charactersOnPage, linesPerPage)
 
-        ' Draws the string within the bounds of the page
+        ' Dibuja la cadena dentro de los límites de la página
         e.Graphics.DrawString(printingText, printingFont, Brushes.Black, e.MarginBounds, StringFormat.GenericTypographic)
 
-        ' Remove the portion of the string that has been printed.
+        ' Elimina la parte de la cadena que se ha impreso.
         printingText = printingText.Substring(charactersOnPage)
 
-        ' Check to see if more pages are to be printed.
+        ' Comprueba si se deben imprimir más páginas.
         If printingText.Length > 0 Then
             e.HasMorePages = True
         Else
